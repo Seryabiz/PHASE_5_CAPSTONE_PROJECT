@@ -5,6 +5,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve, accuracy_score
 from imblearn.over_sampling import SMOTE
@@ -56,7 +57,7 @@ def train_random_forest(X_train, y_train):
     return model
 
 def train_bagging_classifier(X_train, y_train):
-    model = BaggingClassifier(n_estimators=100, random_state=42)
+    model = BaggingClassifier(base_estimator=DecisionTreeClassifier(), n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
     return model
 
