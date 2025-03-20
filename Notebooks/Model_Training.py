@@ -13,20 +13,24 @@ def load_cleaned_data(path):
     return pd.read_csv(path)
 
 def clean_feature_data(X):
-    # Replace infinite values with NaN
-    X.replace([np.inf, -np.inf], np.nan, inplace=True)
+    # Drop non-numeric columns
+    non_numeric_cols = X.select_dtypes(exclude=[np.number]).columns
+    X = X.drop(columns=non_numeric_cols, errors='ignore')
 
-    # Clip large values to avoid dtype overflow
+    # Replace infinite values with NaN
+    X = X.replace([np.inf, -np.inf], np.nan)
+
+    # Clip large values
     X = X.clip(lower=-1e6, upper=1e6)
 
-    # Fill NaNs with column medians
+    # Fill NaNs with median or fallback 0
     for col in X.columns:
         if X[col].isnull().sum() > 0:
             col_median = X[col].median()
             if np.isnan(col_median):
-                X[col].fillna(0, inplace=True)
+                X[col] = X[col].fillna(0)
             else:
-                X[col].fillna(col_median, inplace=True)
+                X[col] = X[col].fillna(col_median)
 
     return X
 
@@ -93,6 +97,11 @@ if __name__ == "__main__":
     cleaned_train_path = "../Data/cleaned_train.csv"  
     df_cleaned = load_cleaned_data(cleaned_train_path)
     X_train, X_val, y_train, y_val = split_features_target(df_cleaned)
+
+    # Confirm no non-numeric columns or inf values
+    print("Non-numeric columns in X_train:", X_train.select_dtypes(exclude=[np.number]).columns)
+    print("NaN count in X_train:", X_train.isnull().sum().sum())
+    print("Inf values in X_train:", np.isinf(X_train.select_dtypes(include=[np.number])).values.sum())
 
     print("Training Logistic Regression...")
     lr_model = train_logistic_regression(X_train, y_train)
