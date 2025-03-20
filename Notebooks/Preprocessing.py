@@ -61,17 +61,24 @@ def encode_categorical(df_train, df_test, column_name):
 
 def run_full_preprocessing(train_path, test_path):
     df_train, df_test = load_dataset(train_path, test_path)
+    rainfall = df_train['rainfall'].copy()  # Store target variable
+    df_train.drop(columns=['rainfall'], inplace=True)  # Drop before processing
+
     rename_columns(df_train, df_test)
     handle_missing_values(df_test)
     create_cyclical_features(df_train, df_test)
     create_temp_range(df_train, df_test)
 
     for col in ['windspeed', 'temperature']:
-        print(f"Outliers in {col}:\n", detect_outliers(df_train, col))
+        print(f"Outliers in {col}:")
+        print(detect_outliers(df_train, col))
         plot_outliers(df_train, col)
 
     scaler = scale_continuous_features(df_train, df_test, ['windspeed', 'temperature', 'maxtemp', 'mintemp', 'humidity'])
     df_train, df_test = encode_categorical(df_train, df_test, 'winddirection')
+
+    # Reattach rainfall column
+    df_train['rainfall'] = rainfall.values
 
     print("Preprocessing complete! Ready for model training 🚀")
     return df_train, df_test, scaler
