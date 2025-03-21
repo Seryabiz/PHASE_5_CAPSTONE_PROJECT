@@ -1,35 +1,55 @@
+# feature_engineering_pipeline.py
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-def cap_outliers(df, column, lower_quantile=0.05, upper_quantile=0.95):
-    lower_bound = df[column].quantile(lower_quantile)
-    upper_bound = df[column].quantile(upper_quantile)
-    df[column] = np.clip(df[column], lower_bound, upper_bound)
-    return df
+class ColumnNameFixer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
 
-def create_new_features(df):
-    df['temp_diff'] = df['maxtemp'] - df['mintemp']
-    df['humidity_index'] = df['humidity'] / df['temperature']
-    df['windspeed_category'] = pd.cut(df['windspeed'], bins=[0, 20, 40, np.inf], labels=['Low', 'Medium', 'High'])
-    return df
+    def transform(self, X):
+        X = X.copy()
+        if 'temparature' in X.columns:
+            X.rename(columns={'temparature': 'temperature'}, inplace=True)
+        return X
 
-def split_data(df, target_column='rainfall'):
-    X = df.drop(columns=[target_column])
-    y = df[target_column]
-    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
-    return X_train, X_val, y_train, y_val
+class OutlierCapper(BaseEstimator, TransformerMixin):
+    def __init__(self, column, lower_quantile=0.05, upper_quantile=0.95):
+        self.column = column
+        self.lower_quantile = lower_quantile
+        self.upper_quantile = upper_quantile
 
-def check_data_types_and_uniques(df):
-    print(df.dtypes)
-    for col in df.select_dtypes(include=['object', 'category']).columns:
-        print(f"{col}: {df[col].unique()[:5]}")  # Show first 5 unique values
+    def fit(self, X, y=None):
+        self.lower_bound = X[self.column].quantile(self.lower_quantile)
+        self.upper_bound = X[self.column].quantile(self.upper_quantile)
+        return self
 
-def convert_to_numeric(df):
-    df = df.apply(pd.to_numeric, errors='coerce')
-    return df
+    def transform(self, X):
+        X = X.copy()
+        X[self.column] = np.clip(X[self.column], self.lower_bound, self.upper_bound)
+        return X
+
+class NewFeatureCreator(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X['temp_diff'] = X['maxtemp'] - X['mintemp']
+        X['humidity_index'] = X['humidity'] / X['temperature']
+        X['windspeed_category'] = pd.cut(X['windspeed'], bins=[0, 20, 40, np.inf], labels=['Low', 'Medium', 'High'])
+        return X
+
+def build_feature_engineering_pipeline(columns_to_cap):
+    steps = [('fix_column_names', ColumnNameFixer())]
+    for column in columns_to_cap:
+        steps.append((f'cap_outliers_{column}', OutlierCapper(column=column)))
+    steps.append(('create_new_features', NewFeatureCreator()))
+    return Pipeline(steps=steps)
 
 def plot_correlation_matrix(df):
     df_numeric = df.select_dtypes(include=['number'])

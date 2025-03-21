@@ -1,11 +1,12 @@
+# feature_selection_pipeline.py
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.feature_selection import mutual_info_classif
 
+
 def compute_mutual_information(df, target_column='rainfall'):
-    # Handle missing windspeed_category values before encoding
     if 'windspeed_category' in df.columns:
         df['windspeed_category'] = df['windspeed_category'].fillna('Unknown')
 
@@ -13,10 +14,8 @@ def compute_mutual_information(df, target_column='rainfall'):
     X = df_encoded.drop(columns=[target_column])
     y = df_encoded[target_column]
 
-    # Replace infinities with NaN
     X.replace([np.inf, -np.inf], np.nan, inplace=True)
 
-    # Fill NaNs column by column with median or fallback to zero
     for col in X.columns:
         if X[col].isnull().sum() > 0:
             col_median = X[col].median()
@@ -25,13 +24,16 @@ def compute_mutual_information(df, target_column='rainfall'):
             else:
                 X[col].fillna(col_median, inplace=True)
 
-    # Final fallback for any remaining NaNs
     X.fillna(0, inplace=True)
 
-    mi_scores = mutual_info_classif(X, y, discrete_features='auto')
+    mi_scores = mutual_info_classif(X, y, discrete_features='auto', random_state=42)
     mi_df = pd.DataFrame({'Feature': X.columns, 'MI_Score': mi_scores})
     mi_df = mi_df.sort_values(by='MI_Score', ascending=False)
+
+    print("Top features by mutual information:")
+    print(mi_df.head(10))
     return mi_df
+
 
 def plot_mi_scores(mi_df):
     plt.figure(figsize=(12, 6))
@@ -41,7 +43,8 @@ def plot_mi_scores(mi_df):
     plt.ylabel('Features')
     plt.show()
 
-def drop_low_impact_features(df, mi_df, threshold=0.01, target_column='rainfall'):
+
+def drop_low_impact_features(df, mi_df, threshold=0.02, target_column='rainfall'):
     low_impact_features = mi_df[mi_df['MI_Score'] < threshold]['Feature'].tolist()
     print(f"Dropping low impact features (MI < {threshold}):", low_impact_features)
 
@@ -49,23 +52,24 @@ def drop_low_impact_features(df, mi_df, threshold=0.01, target_column='rainfall'
     print(f"Dropping wind direction features:", wind_dir_features)
 
     df_refined = df.drop(columns=low_impact_features + wind_dir_features, errors='ignore')
-    
+    print(f"Remaining features: {df_refined.columns.tolist()}")
     return df_refined
+
 
 def save_refined_dataset(df, path):
     df.to_csv(path, index=False)
     print(f"Refined dataset saved at {path}")
 
+
 if __name__ == "__main__":
-    cleaned_train_path = "../Data/cleaned_train.csv"  
+    cleaned_train_path = "../Data/cleaned_train_with_features.csv"  
     df_cleaned = pd.read_csv(cleaned_train_path)
 
-    # Handle missing categories before MI analysis
     if 'windspeed_category' in df_cleaned.columns:
         df_cleaned['windspeed_category'] = df_cleaned['windspeed_category'].fillna('Unknown')
 
     mi_df = compute_mutual_information(df_cleaned)
     plot_mi_scores(mi_df)
 
-    df_refined = drop_low_impact_features(df_cleaned, mi_df, threshold=0.01)
+    df_refined = drop_low_impact_features(df_cleaned, mi_df, threshold=0.02)
     save_refined_dataset(df_refined, "../Data/refined_train.csv")
