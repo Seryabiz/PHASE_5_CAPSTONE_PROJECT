@@ -1,9 +1,8 @@
-# preprocessing_pipeline.py
-
+# preprocessing.py
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import MinMaxScaler, FunctionTransformer
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 import joblib
@@ -32,26 +31,28 @@ class TempRangeAdder(BaseEstimator, TransformerMixin):
         X['temp_range'] = X['maxtemp'] - X['mintemp']
         return X
 
-def build_preprocessing_pipeline(continuous_features, categorical_column):
-    continuous_pipeline = Pipeline(steps=[
+def build_preprocessing_pipeline(numeric_features, categorical_features):
+    numeric_transformer = Pipeline(steps=[
         ('scaler', MinMaxScaler())
     ])
 
-    feature_engineering_pipeline = Pipeline(steps=[
-        ('cyclical_features', CyclicalFeaturesAdder()),
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ])
+
+    feature_engineering = Pipeline(steps=[
+        ('cyclic', CyclicalFeaturesAdder()),
         ('temp_range', TempRangeAdder())
     ])
 
     preprocessor = ColumnTransformer(transformers=[
-        ('cont', continuous_pipeline, continuous_features),
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)
     ], remainder='passthrough')
 
     full_pipeline = Pipeline(steps=[
-        ('feature_engineering', feature_engineering_pipeline),
-        ('preprocessor', preprocessor),
-        ('categorical_encoding', FunctionTransformer(
-            lambda df: pd.get_dummies(df, columns=[categorical_column], prefix=categorical_column), validate=False
-        ))
+        ('feature_engineering', feature_engineering),
+        ('preprocessor', preprocessor)
     ])
 
     return full_pipeline
