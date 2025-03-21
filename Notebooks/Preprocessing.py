@@ -1,84 +1,64 @@
 # preprocessing.py
-
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-import seaborn as sns
-import matplotlib.pyplot as plt
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+import joblib
 
-def load_dataset(train_path, test_path):
-    df_train = pd.read_csv(train_path)
-    df_test = pd.read_csv(test_path)
-    return df_train, df_test
+class CyclicalFeaturesAdder(BaseEstimator, TransformerMixin):
+    def __init__(self, column='day', period=365):
+        self.column = column
+        self.period = period
 
-def rename_columns(df_train, df_test):
-    df_train.rename(columns={'temparature': 'temperature'}, inplace=True)
-    df_test.rename(columns={'temparature': 'temperature'}, inplace=True)
+    def fit(self, X, y=None):
+        return self
 
-def handle_missing_values(df_test):
-    df_test['winddirection'] = df_test['winddirection'].fillna(df_test['winddirection'].median())
+    def transform(self, X):
+        X = X.copy()
+        X[f'{self.column}_sin'] = np.sin(2 * np.pi * X[self.column] / self.period)
+        X[f'{self.column}_cos'] = np.cos(2 * np.pi * X[self.column] / self.period)
+        X.drop(columns=[self.column], inplace=True)
+        return X
 
-def create_cyclical_features(df_train, df_test):
-    df_train['day_sin'] = np.sin(2 * np.pi * df_train['day'] / 365)
-    df_train['day_cos'] = np.cos(2 * np.pi * df_train['day'] / 365)
-    df_test['day_sin'] = np.sin(2 * np.pi * df_test['day'] / 365)
-    df_test['day_cos'] = np.cos(2 * np.pi * df_test['day'] / 365)
-    df_train.drop(columns=['day'], inplace=True)
-    df_test.drop(columns=['day'], inplace=True)
+class TempRangeAdder(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
 
-def create_temp_range(df_train, df_test):
-    df_train['temp_range'] = df_train['maxtemp'] - df_train['mintemp']
-    df_test['temp_range'] = df_test['maxtemp'] - df_test['mintemp']
+    def transform(self, X):
+        X = X.copy()
+        X['temp_range'] = X['maxtemp'] - X['mintemp']
+        return X
 
-def detect_outliers(df, column):
-    Q1 = df[column].quantile(0.25)
-    Q3 = df[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    outliers = df[(df[column] < lower_bound) | (df[column] > upper_bound)]
-    return outliers
+def build_preprocessing_pipeline(numeric_features, categorical_features):
+    numeric_transformer = Pipeline(steps=[
+        ('scaler', MinMaxScaler())
+    ])
 
-def plot_outliers(df, column):
-    plt.figure(figsize=(6, 4))
-    sns.boxplot(x=df[column])
-    plt.title(f'Boxplot of {column}')
-    plt.show()
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ])
 
-def scale_continuous_features(df_train, df_test, continuous_features):
-    scaler = MinMaxScaler()
-    df_train[continuous_features] = scaler.fit_transform(df_train[continuous_features])
-    df_test[continuous_features] = scaler.transform(df_test[continuous_features])
-    return scaler
+    feature_engineering = Pipeline(steps=[
+        ('cyclic', CyclicalFeaturesAdder()),
+        ('temp_range', TempRangeAdder())
+    ])
 
-def encode_categorical(df_train, df_test, column_name):
-    df_train = pd.get_dummies(df_train, columns=[column_name], prefix=column_name)
-    df_test = pd.get_dummies(df_test, columns=[column_name], prefix=column_name)
-    missing_cols = set(df_train.columns) - set(df_test.columns)
-    for col in missing_cols:
-        df_test[col] = 0
-    return df_train, df_test
+    preprocessor = ColumnTransformer(transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)
+    ], remainder='passthrough')
 
-def run_full_preprocessing(train_path, test_path):
-    df_train, df_test = load_dataset(train_path, test_path)
-    rainfall = df_train['rainfall'].copy()  # Store target variable
-    df_train.drop(columns=['rainfall'], inplace=True)  # Drop before processing
+    full_pipeline = Pipeline(steps=[
+        ('feature_engineering', feature_engineering),
+        ('preprocessor', preprocessor)
+    ])
 
-    rename_columns(df_train, df_test)
-    handle_missing_values(df_test)
-    create_cyclical_features(df_train, df_test)
-    create_temp_range(df_train, df_test)
+    return full_pipeline
 
-    for col in ['windspeed', 'temperature']:
-        print(f"Outliers in {col}:")
-        print(detect_outliers(df_train, col))
-        plot_outliers(df_train, col)
+def save_pipeline(pipeline, filename):
+    joblib.dump(pipeline, filename)
 
-    scaler = scale_continuous_features(df_train, df_test, ['windspeed', 'temperature', 'maxtemp', 'mintemp', 'humidity'])
-    df_train, df_test = encode_categorical(df_train, df_test, 'winddirection')
-
-    # Reattach rainfall column
-    df_train['rainfall'] = rainfall.values
-
-    print("Preprocessing complete! Ready for model training 🚀")
-    return df_train, df_test, scaler
+def load_pipeline(filename):
+    return joblib.load(filename)

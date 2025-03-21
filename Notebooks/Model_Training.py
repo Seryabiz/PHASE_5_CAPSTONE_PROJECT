@@ -57,7 +57,7 @@ def train_random_forest(X_train, y_train):
     return model
 
 def train_bagging_classifier(X_train, y_train):
-    model = BaggingClassifier(base_estimator=DecisionTreeClassifier(), n_estimators=100, random_state=42)
+    model = BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
     return model
 
