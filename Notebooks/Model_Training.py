@@ -2,11 +2,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, StackingClassifier, AdaBoostClassifier, ExtraTreesClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve, accuracy_score
 from imblearn.over_sampling import SMOTE
 import joblib
@@ -46,25 +48,27 @@ def apply_smote(X_train, y_train):
     print(y_resampled.value_counts())
     return X_resampled, y_resampled
 
-def train_logistic_regression(X_train, y_train):
-    model = LogisticRegression(max_iter=1000)
-    model.fit(X_train, y_train)
-    return model
+def save_model(model, path):
+    joblib.dump(model, path)
+    print(f"Model saved to {path}")
 
-def train_random_forest(X_train, y_train):
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    return model
-
-def train_bagging_classifier(X_train, y_train):
-    model = BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    return model
-
-def train_xgboost(X_train, y_train):
-    model = XGBClassifier(eval_metric='logloss', random_state=42, verbosity=0)
-    model.fit(X_train, y_train)
-    return model
+def train_models(X_train, y_train):
+    models = {
+        'LogisticRegression': LogisticRegression(max_iter=1000),
+        'RandomForest': RandomForestClassifier(n_estimators=300, random_state=42),
+        'GradientBoosting': GradientBoostingClassifier(n_estimators=300, learning_rate=0.05, random_state=42),
+        'XGBoost': XGBClassifier(eval_metric='logloss', random_state=42, verbosity=0),
+        'LightGBM': LGBMClassifier(random_state=42),
+        'AdaBoost': AdaBoostClassifier(n_estimators=300, random_state=42),
+        'ExtraTrees': ExtraTreesClassifier(n_estimators=300, random_state=42),
+        'SVM': SVC(probability=True, kernel='rbf', random_state=42)
+    }
+    for name, model in models.items():
+        print(f"Training {name}...")
+        model.fit(X_train, y_train)
+        models[name] = model
+        save_model(model, f"../Data/{name.lower()}_model.pkl")  # Save each model
+    return models
 
 def evaluate_model(model, X_val, y_val):
     y_pred = model.predict(X_val)
@@ -85,47 +89,33 @@ def evaluate_model(model, X_val, y_val):
         plt.legend()
         plt.show()
 
-def tune_xgboost(X_train, y_train):
-    param_grid = {
-        'n_estimators': [100, 200],
-        'learning_rate': [0.01, 0.1],
-        'max_depth': [3, 5, 7]
-    }
-    grid = GridSearchCV(XGBClassifier(eval_metric='logloss', random_state=42, verbosity=0),
-                        param_grid, cv=3, scoring='roc_auc', verbose=0)
-    grid.fit(X_train, y_train)
-    print("Best Parameters:", grid.best_params_)
-    return grid.best_estimator_
-
-def save_model(model, path):
-    joblib.dump(model, path)
-    print(f"Model saved to {path}")
+def build_stacking_ensemble(models):
+    estimators = [(name, model) for name, model in models.items() if name != 'LogisticRegression']
+    stack_model = StackingClassifier(
+        estimators=estimators,
+        final_estimator=LogisticRegression(max_iter=1000),
+        cv=5,
+        passthrough=True,
+        n_jobs=-1
+    )
+    return stack_model
 
 if __name__ == "__main__":
-    cleaned_train_path = "../Data/cleaned_train.csv"  
+    cleaned_train_path = "../Data/refined_train.csv"  
     df_cleaned = load_cleaned_data(cleaned_train_path)
     X_train, X_val, y_train, y_val = split_features_target(df_cleaned)
 
     X_train, y_train = apply_smote(X_train, y_train)
 
-    print("Training Logistic Regression...")
-    lr_model = train_logistic_regression(X_train, y_train)
-    evaluate_model(lr_model, X_val, y_val)
+    models = train_models(X_train, y_train)
 
-    print("Training Random Forest...")
-    rf_model = train_random_forest(X_train, y_train)
-    evaluate_model(rf_model, X_val, y_val)
+    for name, model in models.items():
+        print(f"\nEvaluating {name}...")
+        evaluate_model(model, X_val, y_val)
 
-    print("Training Bagging Classifier...")
-    bag_model = train_bagging_classifier(X_train, y_train)
-    evaluate_model(bag_model, X_val, y_val)
+    print("\nTraining and evaluating stacking ensemble...")
+    stack_model = build_stacking_ensemble(models)
+    stack_model.fit(X_train, y_train)
+    evaluate_model(stack_model, X_val, y_val)
 
-    print("Training XGBoost...")
-    xgb_model = train_xgboost(X_train, y_train)
-    evaluate_model(xgb_model, X_val, y_val)
-
-    print("Tuning XGBoost hyperparameters...")
-    tuned_xgb = tune_xgboost(X_train, y_train)
-    evaluate_model(tuned_xgb, X_val, y_val)
-
-    save_model(tuned_xgb, "../Data/best_xgboost_model.pkl")
+    save_model(stack_model, "../Data/best_stacking_ensemble_model.pkl")
