@@ -7,6 +7,15 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 import joblib
 
+import os
+import joblib
+
+def save_pipeline(pipeline, filename):
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    joblib.dump(pipeline, filename)
+
+
 class CyclicalFeaturesAdder(BaseEstimator, TransformerMixin):
     def __init__(self, column='day', period=365):
         self.column = column
@@ -17,18 +26,10 @@ class CyclicalFeaturesAdder(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X = X.copy()
-        X[f'{self.column}_sin'] = np.sin(2 * np.pi * X[self.column] / self.period)
-        X[f'{self.column}_cos'] = np.cos(2 * np.pi * X[self.column] / self.period)
-        X.drop(columns=[self.column], inplace=True)
-        return X
-
-class TempRangeAdder(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        X = X.copy()
-        X['temp_range'] = X['maxtemp'] - X['mintemp']
+        if self.column in X.columns:
+            X[f'{self.column}_sin'] = np.sin(2 * np.pi * X[self.column] / self.period)
+            X[f'{self.column}_cos'] = np.cos(2 * np.pi * X[self.column] / self.period)
+            X.drop(columns=[self.column], inplace=True)
         return X
 
 def build_preprocessing_pipeline(numeric_features, categorical_features):
@@ -41,8 +42,7 @@ def build_preprocessing_pipeline(numeric_features, categorical_features):
     ])
 
     feature_engineering = Pipeline(steps=[
-        ('cyclic', CyclicalFeaturesAdder()),
-        ('temp_range', TempRangeAdder())
+        ('cyclic', CyclicalFeaturesAdder())
     ])
 
     preprocessor = ColumnTransformer(transformers=[
