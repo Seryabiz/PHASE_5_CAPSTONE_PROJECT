@@ -45,15 +45,25 @@ def plot_mi_scores(mi_df):
 
 
 def drop_low_impact_features(df, mi_df, threshold=0.02, target_column='rainfall'):
+    # Force keep these even if MI < threshold
+    always_keep = ['maxtemp', 'mintemp']
+
+    # Get features below threshold
     low_impact_features = mi_df[mi_df['MI_Score'] < threshold]['Feature'].tolist()
+
+    # Remove the ones we want to preserve
+    low_impact_features = [feat for feat in low_impact_features if feat not in always_keep]
+
     print(f"Dropping low impact features (MI < {threshold}):", low_impact_features)
 
+    # Also drop wind direction dummies
     wind_dir_features = [col for col in df.columns if 'winddir' in col]
     print(f"Dropping wind direction features:", wind_dir_features)
 
     df_refined = df.drop(columns=low_impact_features + wind_dir_features, errors='ignore')
     print(f"Remaining features: {df_refined.columns.tolist()}")
     return df_refined
+
 
 
 def save_refined_dataset(df, path):
