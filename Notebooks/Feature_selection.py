@@ -1,10 +1,9 @@
-# feature_selection_pipeline.py
+# feature_selection_pipeline.py (Updated)
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.feature_selection import mutual_info_classif
-
 
 def compute_mutual_information(df, target_column='rainfall'):
     if 'windspeed_category' in df.columns:
@@ -34,7 +33,6 @@ def compute_mutual_information(df, target_column='rainfall'):
     print(mi_df.head(10))
     return mi_df
 
-
 def plot_mi_scores(mi_df):
     plt.figure(figsize=(12, 6))
     sns.barplot(x='MI_Score', y='Feature', data=mi_df, palette='viridis')
@@ -43,20 +41,16 @@ def plot_mi_scores(mi_df):
     plt.ylabel('Features')
     plt.show()
 
-
 def drop_low_impact_features(df, mi_df, threshold=0.02, target_column='rainfall'):
-    # Force keep these even if MI < threshold
-    always_keep = ['maxtemp', 'mintemp']
+    # Protect these columns from being dropped
+    protected = ['mintemp', 'maxtemp']
 
-    # Get features below threshold
+    # Only drop features present in df and NOT in protected list
     low_impact_features = mi_df[mi_df['MI_Score'] < threshold]['Feature'].tolist()
-
-    # Remove the ones we want to preserve
-    low_impact_features = [feat for feat in low_impact_features if feat not in always_keep]
+    low_impact_features = [feat for feat in low_impact_features if feat in df.columns and feat not in protected]
 
     print(f"Dropping low impact features (MI < {threshold}):", low_impact_features)
 
-    # Also drop wind direction dummies
     wind_dir_features = [col for col in df.columns if 'winddir' in col]
     print(f"Dropping wind direction features:", wind_dir_features)
 
@@ -65,11 +59,9 @@ def drop_low_impact_features(df, mi_df, threshold=0.02, target_column='rainfall'
     return df_refined
 
 
-
 def save_refined_dataset(df, path):
     df.to_csv(path, index=False)
     print(f"Refined dataset saved at {path}")
-
 
 if __name__ == "__main__":
     cleaned_train_path = "../Data/cleaned_train_with_features.csv"  

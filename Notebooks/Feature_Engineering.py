@@ -22,7 +22,7 @@ class OutlierCapper(BaseEstimator, TransformerMixin):
     def __init__(self, column, lower_quantile=0.05, upper_quantile=0.95):
         self.column = column
         self.lower_quantile = lower_quantile
-        self.upper_quantile = upper_quantile  # <- Add this line
+        self.upper_quantile = upper_quantile
 
     def fit(self, X, y=None):
         self.lower_bound = X[self.column].quantile(self.lower_quantile)
@@ -33,17 +33,24 @@ class OutlierCapper(BaseEstimator, TransformerMixin):
         X = X.copy()
         X[self.column] = np.clip(X[self.column], self.lower_bound, self.upper_bound)
         return X
+
 class NewFeatureCreator(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
         X = X.copy()
+
+        if 'mintemp' not in X.columns:
+            raise KeyError("Missing 'mintemp' column required for feature engineering")
+
         X['temp_diff'] = X['maxtemp'] - X['mintemp']
         X['humidity_index'] = X['humidity'] / (X['temperature'] + 1e-6)
         X['windspeed_category'] = pd.cut(X['windspeed'], bins=[0, 20, 40, np.inf], labels=['Low', 'Medium', 'High'])
         X['temp_sum'] = X['maxtemp'] + X['mintemp']
         X['dewpoint_humidity_ratio'] = X['dewpoint'] / (X['humidity'] + 1e-6)
+        X['mintemp humidity_index'] = X['mintemp'] * X['humidity_index']
+
         return X
 
 class PolynomialFeatureAdder(BaseEstimator, TransformerMixin):
@@ -64,7 +71,7 @@ class PolynomialFeatureAdder(BaseEstimator, TransformerMixin):
         numeric_cols = X.select_dtypes(include=[np.number]).columns
         poly_features = self.poly.transform(X[numeric_cols])
         poly_df = pd.DataFrame(poly_features, columns=self.feature_names, index=X.index)
-        X = pd.concat([X, poly_df.drop(columns=numeric_cols)], axis=1)  # Avoid duplicating existing features
+        X = pd.concat([X, poly_df.drop(columns=numeric_cols)], axis=1)
         return X
 
 def build_feature_engineering_pipeline(columns_to_cap):
