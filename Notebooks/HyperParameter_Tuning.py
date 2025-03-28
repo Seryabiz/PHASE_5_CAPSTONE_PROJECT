@@ -96,5 +96,5 @@ print(f"\nStacking Ensemble Accuracy: {acc:.4f}")
 print("Classification Report:\n", classification_report(y_val, y_pred))
 
 # Save the final ensemble model
-joblib.dump(stacking_ensemble, '../Data/best_stacking_ensemble_tuned.pkl')
+joblib.dump(stacking_ensemble, './Data/best_stacking_ensemble_tuned.pkl')
 print("\n✅ Tuned stacking ensemble saved!")

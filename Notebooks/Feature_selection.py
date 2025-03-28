@@ -42,22 +42,21 @@ def plot_mi_scores(mi_df):
     plt.show()
 
 def drop_low_impact_features(df, mi_df, threshold=0.02, target_column='rainfall'):
-    # Protect these columns from being dropped
-    protected = ['mintemp', 'maxtemp']
+    # Protect features containing these keywords
+    protected_keywords = ['mintemp']
 
-    # Only drop features present in df and NOT in protected list
-    low_impact_features = mi_df[mi_df['MI_Score'] < threshold]['Feature'].tolist()
-    low_impact_features = [feat for feat in low_impact_features if feat in df.columns and feat not in protected]
+    # Select features to keep
+    to_keep = mi_df[
+        (mi_df['MI_Score'] >= threshold) |
+        (mi_df['Feature'].str.contains('|'.join(protected_keywords)))
+    ]['Feature'].tolist()
 
-    print(f"Dropping low impact features (MI < {threshold}):", low_impact_features)
+    if target_column not in to_keep:
+        to_keep.append(target_column)
 
-    wind_dir_features = [col for col in df.columns if 'winddir' in col]
-    print(f"Dropping wind direction features:", wind_dir_features)
-
-    df_refined = df.drop(columns=low_impact_features + wind_dir_features, errors='ignore')
-    print(f"Remaining features: {df_refined.columns.tolist()}")
+    df_refined = df[to_keep]
+    print(f"Remaining features after filtering: {df_refined.columns.tolist()}")
     return df_refined
-
 
 def save_refined_dataset(df, path):
     df.to_csv(path, index=False)

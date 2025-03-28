@@ -13,8 +13,18 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 from imblearn.over_sampling import SMOTE
 import joblib
 import warnings
+import os  # For saving models safely
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
+def save_model(model, path):
+    # Ensure directory exists
+    directory = os.path.dirname(path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    # Save model
+    joblib.dump(model, path)
+    print(f"✅ Model saved to {path}")
 
 def load_cleaned_data(path):
     return pd.read_csv(path)
@@ -48,10 +58,6 @@ def apply_smote(X_train, y_train):
     print(y_resampled.value_counts())
     return X_resampled, y_resampled
 
-def save_model(model, path):
-    joblib.dump(model, path)
-    print(f"Model saved to {path}")
-
 def train_models(X_train, y_train):
     models = {
         'LogisticRegression': LogisticRegression(max_iter=1000),
@@ -67,7 +73,7 @@ def train_models(X_train, y_train):
         print(f"Training {name}...")
         model.fit(X_train, y_train)
         models[name] = model
-        save_model(model, f"../Data/{name.lower()}_model.pkl")  # Save each model
+        save_model(model, f"./Data/{name.lower()}_model.pkl")  # ✅ Correct path
     return models
 
 def evaluate_model(model, X_val, y_val):
@@ -82,7 +88,7 @@ def evaluate_model(model, X_val, y_val):
         print("ROC AUC Score:", auc)
         fpr, tpr, _ = roc_curve(y_val, y_proba)
         plt.figure()
-        plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc:.2f})')
+        plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc:.2f}')
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
         plt.title('ROC Curve')
@@ -101,7 +107,7 @@ def build_stacking_ensemble(models):
     return stack_model
 
 if __name__ == "__main__":
-    cleaned_train_path = "../Data/refined_train.csv"  
+    cleaned_train_path = "./Data/refined_train.csv"  
     df_cleaned = load_cleaned_data(cleaned_train_path)
     X_train, X_val, y_train, y_val = split_features_target(df_cleaned)
 
@@ -118,4 +124,4 @@ if __name__ == "__main__":
     stack_model.fit(X_train, y_train)
     evaluate_model(stack_model, X_val, y_val)
 
-    save_model(stack_model, "../Data/best_stacking_ensemble_model.pkl")
+    save_model(stack_model, "./Data/best_stacking_ensemble_model.pkl")
