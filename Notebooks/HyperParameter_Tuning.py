@@ -11,7 +11,7 @@ from imblearn.over_sampling import SMOTE
 import joblib
 
 # Load cleaned and engineered dataset
-df = pd.read_csv('../Data/cleaned_train_with_features.csv')
+df = pd.read_csv('./Data/cleaned_train_with_features.csv')
 
 # Separate features and target
 X = df.drop(columns=['rainfall'])
