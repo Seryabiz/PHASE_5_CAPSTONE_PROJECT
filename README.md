@@ -185,7 +185,7 @@ weighted avg       0.85      0.85      0.84       438] Classification report
 
 ### Visuals:
 - [![Precision-Recall Curve](Images/Precision_recall_curve.png)] Precision-Recall Curve
-- [x] Distribution of Predicted Probabilities
+- [![Distribution of Predicted Probabilities](Images/Distribution_of_predicted_probabilities.png)] Distribution of Predicted Probabilities
 
 > The model performs particularly well on **class 1 (rain)** — crucial in real-world contexts.
 
