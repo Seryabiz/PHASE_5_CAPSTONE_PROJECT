@@ -69,16 +69,16 @@ These histograms show how each feature is distributed in the training dataset. T
 
 - ![Distribution of Humidity](Images/Distribution_of_humidity.png)
 - ![Distribution of Sunshine](Images/Distribution_of_Sunshine.png)
-- ![Distribution of Windspeed](Images/Distribution_of_Windspeed.png)
-- ![Distribution of Dewpoint](Images/Distribution_of_Dewpoint.png)
+- ![Distribution of Windspeed](Images/Distribution_of_windspeed.png)
+- ![Distribution of Dewpoint](Images/Distribution_of_dewpoint.png)
 
 #### 📦 Boxplots - Outlier Detection
 These boxplots reveal the spread and presence of potential outliers in the same features, helping inform future steps like **outlier capping** or **robust scaling**.
 
-- ![Boxplot of Humidity](Images/Boxplot_of_Humidity.png)
+- ![Boxplot of Humidity](Images/Boxplot_of_humidity.png)
 - ![Boxplot of Sunshine](Images/Boxplot_of_Sunshine.png)
-- ![Boxplot of Windspeed](Images/Boxplot_of_Windspeed.png)
-- ![Boxplot of Dewpoint](Images/Boxplot_of_Dewpoint.png)] Feature distributions & boxplots (humidity, sunshine, windspeed, dewpoint)
+- ![Boxplot of Windspeed](Images/Boxplot_of_windspeed.png)
+- ![Boxplot of Dewpoint](Images/Boxplot_of_dewpoint.png)] Feature distributions & boxplots (humidity, sunshine, windspeed, dewpoint)
 
 ### Key Insight:
 > Features like **humidity**, **cloud cover**, and **sunshine** exhibit clear patterns across rainfall classes.
