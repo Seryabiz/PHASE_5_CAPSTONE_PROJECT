@@ -44,7 +44,11 @@ Forecasting rainfall using meteorological data is a complex classification probl
 This plot shows class imbalance between rainy and non-rainy observations in the training data.
 
 ![Target Variable Distribution](Images/Target_Variable_Distribution.png) ] Target variable distribution plot
-- [ ] Temperature bar chart (max, mean, min)
+- [## 🌡️ Temperature Comparison: Max, Mean & Min
+
+Understanding how average, maximum, and minimum temperatures differ across observations provides insight into thermal ranges influencing rainfall.
+
+![Temperature Comparison](Images/Temperature_Bar_Chart.png) ] Temperature bar chart (max, mean, min)
 - [ ] Humidity vs windspeed by rainfall (scatterplot)
 - [ ] Feature distributions & boxplots (humidity, sunshine, windspeed, dewpoint)
 
