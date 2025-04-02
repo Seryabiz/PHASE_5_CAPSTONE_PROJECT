@@ -112,11 +112,6 @@ After extensive feature engineering, we visualized the top 50 feature correlatio
 
 ---
 
-#### 🧬 2. Pairwise Relationships Colored by Rainfall
-
-A pairplot segmented by the target variable (`rainfall`) was used to inspect feature clustering and separation for class 0 (No Rain) and 1 (Rain). Some features show strong visual class separability, justifying their inclusion in the model.
-
-- ![Pairwise Relationship by Rainfall](Images/Pairwise_relationship_by_rainfall.png) ] 
 
 ### Insight:
 > Strong multicollinearity handled by **dropping >70 redundant features**
@@ -131,7 +126,7 @@ Used **Mutual Information** to retain the most predictive features.
 - Removed features with MI < 0.02
 
 ### Visuals:
-- [x] MI Score bar chart (sorted)
+- [![Mutual Information Scores](Images/Mutual_Information_Scores.png)] MI Score bar chart (sorted)
 
 > Final feature set reduced to **15 variables**, improving model interpretability and speed.
 
