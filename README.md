@@ -166,8 +166,15 @@ Split the dataset:
 - Cross-validated with `cv=5`
 
 ### Visuals:
-- [x] Confusion matrix (validation)
-- [x] Classification report
+- [![Confusion Matrix - Validation Set](Images/CM_Validation.png)] Confusion matrix (validation)
+- [              precision    recall  f1-score   support
+
+           0       0.80      0.61      0.69       119
+           1       0.86      0.94      0.90       319
+
+    accuracy                           0.85       438
+   macro avg       0.83      0.77      0.80       438
+weighted avg       0.85      0.85      0.84       438] Classification report
 
 ---
 
