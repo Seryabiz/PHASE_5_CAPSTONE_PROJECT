@@ -99,9 +99,24 @@ These boxplots reveal the spread and presence of potential outliers in the same 
 - Saved as: `feature_engineering_pipeline.pkl`
 
 ### Visuals:
-- [ ] Enhanced correlation matrix
-- [ ] Top interaction terms heatmap
-- [ ] Pairwise relationships by rainfall 
+- [### 🔀 Multivariate Analysis: Feature Interactions & Relationships
+
+To better understand interactions between meteorological features and their influence on rainfall prediction, we performed multivariate visualizations. These help detect **collinearity**, **hidden interactions**, and **clusters of related variables**.
+
+
+#### 🔝 1. Top 50 Correlated Features - Post Feature Engineering
+
+After extensive feature engineering, we visualized the top 50 feature correlations. This helped us identify redundant variables to drop and influential interactions to retain.
+
+- ![Top Correlation Matrix](Images/Top_correlation_matrix.png)
+
+---
+
+#### 🧬 2. Pairwise Relationships Colored by Rainfall
+
+A pairplot segmented by the target variable (`rainfall`) was used to inspect feature clustering and separation for class 0 (No Rain) and 1 (Rain). Some features show strong visual class separability, justifying their inclusion in the model.
+
+- ![Pairwise Relationship by Rainfall](Images/Pairwise_relationship_by_rainfall.png) ] 
 
 ### Insight:
 > Strong multicollinearity handled by **dropping >70 redundant features**
