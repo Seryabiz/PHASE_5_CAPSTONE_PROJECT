@@ -39,7 +39,11 @@ Forecasting rainfall using meteorological data is a complex classification probl
 - 🧭 Observed class imbalance (more rainy days)
 
 ### 📈 Visuals:
-- [ ] Target variable distribution plot
+- [## 🌧️ Target Variable Distribution
+
+This plot shows class imbalance between rainy and non-rainy observations in the training data.
+
+![Target Variable Distribution](Images/Target_Variable_Distribution.png) ] Target variable distribution plot
 - [ ] Temperature bar chart (max, mean, min)
 - [ ] Humidity vs windspeed by rainfall (scatterplot)
 - [ ] Feature distributions & boxplots (humidity, sunshine, windspeed, dewpoint)
@@ -192,3 +196,4 @@ Split the dataset:
 _Data Scientists | Weather Prediction Specialists_  
 📍 Nairobi, Kenya  
 🔗 ✉️ [https://github.com/Otim135/PHASE_5_CAPSTONE_PROJECT]
+
