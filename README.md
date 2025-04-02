@@ -212,13 +212,13 @@ To assess classification performance, we generated confusion matrices for each b
 - **False Negatives (FN)**: Missed rain predictions  
 
 #### 🔍 Logistic Regression
-![Confusion Matrix - Logistic Regression](Images/CM_Logistic_Regression.png)
+![Confusion Matrix - Logistic Regression](Images/CM_Logistic_regression.png)
 
 #### 🌳 Decision Tree / Gradient Boosting
-![Confusion Matrix - Decision Tree](Images/CM_Decision_Tree.png)
+![Confusion Matrix - Decision Tree](Images/CM_Decision_tree.png)
 
 #### 🌲 Random Forest
-![Confusion Matrix - Random Forest](Images/CM_RandomForest.png)
+![Confusion Matrix - Random Forest](Images/CM_Randomforest.png)
 
 #### 💡 LightGBM
 ![Confusion Matrix - LightGBM](Images/CM_LightGBM.png)
