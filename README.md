@@ -49,8 +49,36 @@ This plot shows class imbalance between rainy and non-rainy observations in the 
 Understanding how average, maximum, and minimum temperatures differ across observations provides insight into thermal ranges influencing rainfall.
 
 ![Temperature Comparison](Images/Temperature_Bar_Chart.png) ] Temperature bar chart (max, mean, min)
-- [ ] Humidity vs windspeed by rainfall (scatterplot)
-- [ ] Feature distributions & boxplots (humidity, sunshine, windspeed, dewpoint)
+- [## 💨 Humidity vs Windspeed by Rainfall
+
+This scatterplot explores the relationship between **humidity** and **windspeed**, color-coded by rainfall outcome. It reveals subtle patterns in how atmospheric moisture and wind dynamics correlate with precipitation events.
+
+![Humidity vs Windspeed by Rainfall](Images/Humidity%20vs%20Windspeed%20by%20rainfall.png) ] Humidity vs windspeed by rainfall (scatterplot)
+- [ ## 📊 Univariate Analysis: Feature Distributions & Outliers
+
+To better understand the behavior of individual meteorological features, we performed both **distribution analysis** and **outlier detection** using histograms and boxplots.
+
+The following variables were explored:
+- **Humidity**
+- **Sunshine**
+- **Windspeed**
+- **Dewpoint**
+
+#### 🌡️ Histograms - Feature Distributions
+These histograms show how each feature is distributed in the training dataset. This helps reveal skewness, modality, and general variability.
+
+- ![Distribution of Humidity](Images/Distribution_of_humidity.png)
+- ![Distribution of Sunshine](Images/Distribution_of_Sunshine.png)
+- ![Distribution of Windspeed](Images/Distribution_of_Windspeed.png)
+- ![Distribution of Dewpoint](Images/Distribution_of_Dewpoint.png)
+
+#### 📦 Boxplots - Outlier Detection
+These boxplots reveal the spread and presence of potential outliers in the same features, helping inform future steps like **outlier capping** or **robust scaling**.
+
+- ![Boxplot of Humidity](Images/Boxplot_of_Humidity.png)
+- ![Boxplot of Sunshine](Images/Boxplot_of_Sunshine.png)
+- ![Boxplot of Windspeed](Images/Boxplot_of_Windspeed.png)
+- ![Boxplot of Dewpoint](Images/Boxplot_of_Dewpoint.png)] Feature distributions & boxplots (humidity, sunshine, windspeed, dewpoint)
 
 ### Key Insight:
 > Features like **humidity**, **cloud cover**, and **sunshine** exhibit clear patterns across rainfall classes.
