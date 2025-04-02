@@ -184,7 +184,7 @@ weighted avg       0.85      0.85      0.84       438] Classification report
 - **Precision-Recall Curve**: AP = 0.92
 
 ### Visuals:
-- [x] Precision-Recall Curve
+- [![Precision-Recall Curve](Images/Precision_recall_curve.png)] Precision-Recall Curve
 - [x] Distribution of Predicted Probabilities
 
 > The model performs particularly well on **class 1 (rain)** — crucial in real-world contexts.
