@@ -202,7 +202,32 @@ weighted avg       0.85      0.85      0.84       438] Classification report
 | **Stacking Ensemble** | **0.85** | **0.86** |
 
 ### Visuals:
-- [x] 6 confusion matrices for model comparison
+- [### 🧮 Confusion Matrix Comparison: Model Evaluation Breakdown
+
+To assess classification performance, we generated confusion matrices for each baseline model and the final ensemble. These matrices provide a visual breakdown of:
+
+- **True Positives (TP)**: Correctly predicted rain days  
+- **True Negatives (TN)**: Correctly predicted dry days  
+- **False Positives (FP)**: Incorrectly predicted rain when dry  
+- **False Negatives (FN)**: Missed rain predictions  
+
+#### 🔍 Logistic Regression
+![Confusion Matrix - Logistic Regression](Images/CM_Logistic_Regression.png)
+
+#### 🌳 Decision Tree / Gradient Boosting
+![Confusion Matrix - Decision Tree](Images/CM_Decision_Tree.png)
+
+#### 🌲 Random Forest
+![Confusion Matrix - Random Forest](Images/CM_RandomForest.png)
+
+#### 💡 LightGBM
+![Confusion Matrix - LightGBM](Images/CM_LightGBM.png)
+
+#### ⚡ XGBoost
+![Confusion Matrix - XGBoost](Images/CM_XGBoost.png)
+
+#### 🧠 Stacking Ensemble (Final Model)
+![Confusion Matrix - Stacking Ensemble](Images/CM_Stacking_Ensemble.png)] 6 confusion matrices for model comparison
 
 > **Stacking Ensemble** matched or outperformed all baselines while maintaining generalizability.
 
