@@ -50,6 +50,9 @@ class CyclicalEncoder(BaseEstimator, TransformerMixin):
             print(f"⚠️ Column '{self.column}' not found in dataset.")
 
         return X
+    
+class CyclicalFeaturesAdder(CyclicalEncoder):
+    pass    
 
 
 
