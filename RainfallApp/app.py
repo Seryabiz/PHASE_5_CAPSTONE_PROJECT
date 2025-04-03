@@ -10,7 +10,7 @@ import joblib
 st.set_page_config(page_title="Rainfall Prediction", layout="centered")
 
 # Load model and pipeline
-model = joblib.load('./Models/best_stacking_ensemble_tuned.pkl')
+model = joblib.load('./Data/best_stacking_ensemble_model.pkl')
 pipeline = joblib.load('./Models/full_preprocessing_pipeline.joblib')
 df_refined = pd.read_csv('./Data/refined_train.csv')
 
