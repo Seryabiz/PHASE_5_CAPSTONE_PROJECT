@@ -1,5 +1,15 @@
 from flask import Flask, request, jsonify
 import joblib
+import sys
+import pandas as pd
+sys.path.append('./Notebooks')
+import Feature_Engineering
+
+feature_pipeline = joblib.load('feature_engineering.pkl')
+
+columns = joblib.load('columns.pkl')
+
+pipeline = joblib.load('Preprocessing_pipeline.joblib')
 
 app = Flask(__name__)
 
@@ -10,6 +20,9 @@ def Home():
 @app.route('/predict', methods = ['POST'])
 def Prediction():
     model = joblib.load('model.pkl')
-    data = request.json
-    prediction = model.predict_proba()[1]
-    return prediction
+    data = pd.DataFrame([request.json])
+    features = feature_pipeline.transform(data)
+    selected_features = features[[x for x in columns if x != 'rainfall']]
+    X = pipeline.transform(selected_features)
+    prediction = model.predict_proba(X)
+    return jsonify({'Probability of rain':prediction.tolist()[0][1]})
