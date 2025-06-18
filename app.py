@@ -15,8 +15,35 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def Home():
-    return "Welcome to the rainfall prediction site"
-
+    return"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <!--metadata about this document-->
+    </head>
+    <body>
+    <!--this is the information to be displayed-->
+    <h1>Welcome to the rainfall prediction website</h1>
+    <p>
+    <h3>Features used in the prediction</h3>
+    <ul>
+    <li>id</li>
+    <li>day</li>
+    <li>pressure</li>
+    <li>maxtemp</li>
+    <li>temparature</li>
+    <li>mintemp</li>
+    <li>dewpoint</li>
+    <li>humidity</li>
+    <li>cloud</li>
+    <li>sunshine</li>
+    <li>winddirection</li>
+    <li>windspeed</li>
+    </ul>
+    </p>
+    </body>
+    </html>
+    """
 @app.route('/predict', methods = ['POST'])
 def Prediction():
     model = joblib.load('model.pkl')
