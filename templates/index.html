@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+    <!--metadata about this document-->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'style.css')}}">
+    </head>
+    <body>
+    <!--this is the information to be displayed-->
+    <h1>Welcome to the rainfall prediction website</h1>
+    <p>
+    <h3>Features used in the prediction</h3>
+    <form method="POST">
+    <ul>
+    <div>
+    <li>ID <input type="number" name="id" step="any" required></li>
+    <li>Day <input type="number" name="day" step="any" required></li>
+    <li>Pressure <input type="number" name="pressure" step="any" required></li>
+    <li>Max Temp <input type="number" name="maxtemp" step="any" required></li>
+    <li>Temperature <input type="number" name="temparature" step="any" required></li>
+    <li>Min Temp <input type="number" name="mintemp" step="any" required></li>
+    <li>Dew Point <input type="number" name="dewpoint" step="any" required></li>
+    <li>Humidity <input type="number" name="humidity" step="any" required></li>
+    <li>Cloud <input type="number" name="cloud" step="any" required></li>
+    <li>Sunshine <input type="number" name="sunshine" step="any" required></li>
+    <li>Wind Direction <input type="number" name="winddirection" step="any" required></li>
+    <li>Wind Speed <input type="number" name="windspeed" step="any" required></li>
+    </div>
+    </ul>
+    <input type="submit" value="Predict">
+    </form>
+    {% if prediction %}
+    <h4>Prediction: {{prediction}}</h4>
+    {% endif %}
+    </p>
+    </body>
+    </html>
